@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build Components
+*.r1cs
+*.sym
+*.wasm
+
+# Generated JS folders (from circom)
+*_js/
+
+# Trusted Setup Artifacts
+*.ptau
+*.zkey
+
+# Optional: Keep verification keys if they are final, otherwise ignore dev keys
+# verification_key_*.json
+build/
