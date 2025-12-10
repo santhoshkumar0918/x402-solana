@@ -7,7 +7,6 @@ skip-lint = false
 
 [programs.localnet]
 access-controller = "2vN43sgXS25zWZevcNmfwdWyTTXwdLnyMgotspmVxq5g"
-contracts = "BHNvgS6GVAvNwVDRqan9zgRbLy91FknCSEyEw1SToWv3"
 shielded-pool = "GZckqK8uj8vioor8QJxW2ATBYmiWYu5tfBhKFWcrtgR"
 spend-verifier = "55FvRWv7PoAAFtcfg1FEzTFGQbEhz63YV4npRicXMjyW"
 token-hooks = "A4H8uh7rmfHv9YK7X71EYGa3MvjY3F2THGnwbPhX8DZg"
