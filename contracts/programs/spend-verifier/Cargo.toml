@@ -24,12 +24,8 @@ custom-panic = []
 anchor-lang = "0.32.1"
 anchor-spl = "0.32.1"
 shielded-pool = { path = "../shielded-pool", features = ["cpi"] }
-ark-bn254 = "0.4.0"
-ark-groth16 = "0.4.0"
-ark-serialize = "0.4.0"
-ark-std = "0.4.0"
-ark-ff = "0.4.0"
-ark-ec = "0.4.0"
+
+
 
 
 [lints.rust]

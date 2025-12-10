@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Token, TokenAccount};
-use ark_bn254::Fr;
-use ark_std::vec::Vec as ArkVec;
-use ark_ff::PrimeField;
+use anchor_spl::token::Token;
 
-declare_id!("55FvRWv7PoAAFtcfg1FEzTFGQbEhz63YV4npRicXMjyW");
+
+
+
+declare_id!("CwJ5s1e69mv5uAnTyaAxos9DVVQ2kWcz53BQm6krzDG9");
 
 #[program]
 pub mod spend_verifier {
@@ -172,10 +172,12 @@ pub struct VerifySpend<'info> {
     pub pool_authority: UncheckedAccount<'info>,
     
     #[account(mut)]
-    pub pool_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub pool_token: UncheckedAccount<'info>,
     
     #[account(mut)]
-    pub recipient_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub recipient_token: UncheckedAccount<'info>,
     
     // Programs
     pub shielded_pool_program: Program<'info, shielded_pool::program::ShieldedPool>,
@@ -319,28 +321,21 @@ fn groth16_verify(
     require!(vk.ic.len() >= 1, ErrorCode::InvalidVerificationKey);
     require!(proof.pi_a.x != [0u8; 32], ErrorCode::InvalidProof);
     
-    // Convert public signals to field elements
-    let mut public_inputs = ArkVec::new();
-    for signal in public_signals {
-        let field_element = Fr::from_le_bytes_mod_order(signal);
-        public_inputs.push(field_element);
-    }
-    
     // Validate proof structure - check that G2 point is not zero
     let g2_point_non_zero = proof.pi_b.x[0] != [0u8; 32] || proof.pi_b.x[1] != [0u8; 32];
     
     // Perform verification using the structured components
     let proof_valid = 
-        vk.ic.len() == public_inputs.len() + 1 && // IC length should match public inputs + 1
+        vk.ic.len() == public_signals.len() + 1 && // IC length should match public inputs + 1
         proof.pi_a.x != [0u8; 32] && // Proof G1 points should not be zero
         g2_point_non_zero && // G2 point should not be zero
         proof.pi_c.x != [0u8; 32] &&
         vk.alpha_g1.x != [0u8; 32] && // VK points should not be zero
-        public_inputs.len() > 0;
+        public_signals.len() > 0;
     
     if proof_valid {
         msg!("Groth16 verification successful - inputs: {}, ic_len: {}", 
-             public_inputs.len(), vk.ic.len());
+             public_signals.len(), vk.ic.len());
     } else {
         msg!("Groth16 verification failed - structural validation");
     }

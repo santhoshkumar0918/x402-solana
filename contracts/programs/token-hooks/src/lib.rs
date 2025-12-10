@@ -1,9 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer};
-use access_controller::{self, program::AccessController, cpi::accounts::GrantAccess};
-use spl_token::instruction::transfer_checked;
+use anchor_spl::token::{self, Token, Transfer};
+use access_controller;
 
-declare_id!("A4H8uh7rmfHv9YK7X71EYGa3MvjY3F2THGnwbPhX8DZg");
+declare_id!("6s5H6xDDWymGRtGN4Vpr5AqyvfRZ4cMhrZq5yJkQQrYU");
 
 #[program]
 pub mod token_hooks {
@@ -59,7 +58,8 @@ pub mod token_hooks {
         ctx: Context<ProcessPaymentTrigger>,
         payment_amount: u64,
         payment_proof: PaymentProof,
-    ) -> Result<()> {\n        let hook = &ctx.accounts.payment_hook;
+    ) -> Result<()> {
+        let hook = &ctx.accounts.payment_hook;
         require!(hook.is_active, ErrorCode::HookInactive);
         require!(payment_amount >= hook.trigger_amount, ErrorCode::InsufficientPayment);
 
@@ -139,7 +139,7 @@ pub mod token_hooks {
 
             let success = hook.is_active &&
                 trigger.payment_amount >= hook.trigger_amount &&
-                verify_payment_proof(&trigger.payment_proof, trigger.payment_amount)?;
+                verify_payment_proof(&trigger.payment_proof, trigger.payment_amount, &hook.content_hash)?;
 
             if success {
                 // Would trigger access grant here
@@ -219,7 +219,6 @@ pub mod token_hooks {
 // Helper function to verify payment proofs
 fn verify_payment_proof(proof: &PaymentProof, amount: u64, content_hash: &[u8; 32]) -> Result<bool> {
     // Enhanced payment proof verification with cryptographic checks
-    use anchor_spl::token::spl_token::native_mint;
     
     // Verify amount matches proof
     require!(proof.amount == amount, ErrorCode::AmountMismatch);
@@ -243,7 +242,7 @@ fn verify_payment_proof(proof: &PaymentProof, amount: u64, content_hash: &[u8; 3
     );
     
     // Additional verification logic would integrate with spend-verifier program
-    msg!(\"Payment proof verified for amount: {} lamports\", amount);
+    msg!("Payment proof verified for amount: {} lamports", amount);
     Ok(proof.verified)
 }
 
@@ -302,10 +301,20 @@ pub struct ProcessPaymentTrigger<'info> {
     #[account(mut)]
     pub purchase_record: Account<'info, x402_registry::PurchaseRecord>,
     
+    // Token accounts (optional for token transfers)
+    #[account(mut)]
+    /// CHECK: Token account validated by token program
+    pub payer_token_account: Option<UncheckedAccount<'info>>,
+    
+    #[account(mut)]
+    /// CHECK: Token account validated by token program
+    pub recipient_token_account: Option<UncheckedAccount<'info>>,
+    
     // Programs
     pub access_controller_program: Program<'info, access_controller::program::AccessController>,
     /// CHECK: Self reference for CPI
     pub token_hooks_program: UncheckedAccount<'info>,
+    pub token_program: Program<'info, Token>,
     
     #[account(mut)]
     pub buyer: Signer<'info>,
