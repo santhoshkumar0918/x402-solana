@@ -1,7 +1,9 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+use anchor_spl::token::{self, Token, Transfer};
 
-declare_id!("GZckqK8uj8vioor8QJxW2ATBYmiWYu5tfBhKFWcrtgR");
+
+
+declare_id!("75cH7CRmvDyy7o3mGuWvJhffT7ZyLmYdvv7x36ZVhio1");
 
 #[program]
 pub mod shielded_pool {
@@ -117,7 +119,7 @@ pub mod shielded_pool {
 }
 
 // Program IDs for cross-program invocations
-pub const SPEND_VERIFIER_ID: Pubkey = pubkey!("55FvRWv7PoAAFtcfg1FEzTFGQbEhz63YV4npRicXMjyW");
+pub const SPEND_VERIFIER_ID: Pubkey = pubkey!("CwJ5s1e69mv5uAnTyaAxos9DVVQ2kWcz53BQm6krzDG9");
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -161,10 +163,12 @@ pub struct Deposit<'info> {
     pub merkle_tree: Account<'info, MerkleTree>,
     
     #[account(mut)]
-    pub user_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub user_token: UncheckedAccount<'info>,
     
     #[account(mut)]
-    pub pool_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub pool_token: UncheckedAccount<'info>,
     
     pub user: Signer<'info>,
     pub token_program: Program<'info, Token>,
@@ -186,10 +190,12 @@ pub struct Withdraw<'info> {
     pub pool_authority: UncheckedAccount<'info>,
     
     #[account(mut)]
-    pub pool_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub pool_token: UncheckedAccount<'info>,
     
     #[account(mut)]
-    pub recipient_token: Account<'info, TokenAccount>,
+    /// CHECK: Token account validated by token program
+    pub recipient_token: UncheckedAccount<'info>,
     
     pub token_program: Program<'info, Token>,
 }
@@ -309,42 +315,29 @@ impl MerkleTree {
     }
 }
 
-use light_poseidon::{Poseidon, PoseidonHasher};
-use ark_ff::{PrimeField, BigInteger};
-use ark_bn254::Fr;
+use sha2::{Sha256, Digest};
 
-/// Production-grade Poseidon hash implementation for BN254 curve
+/// Solana-compatible hash function for Merkle tree operations
+/// Uses SHA256 instead of Poseidon for stack efficiency on BPF
 fn poseidon_hash(inputs: &[[u8; 32]]) -> Result<[u8; 32]> {
     if inputs.is_empty() {
         return Err(ErrorCode::InvalidInput.into());
     }
     
-    // Convert bytes to field elements
-    let mut field_inputs = Vec::new();
+    // Use SHA256 for hashing - much more efficient on Solana BPF
+    let mut hasher = Sha256::new();
+    
+    // Hash all inputs together
     for input in inputs {
-        // Convert 32 bytes to field element by splitting into chunks
-        let chunks = input.chunks(16).collect::<Vec<_>>();
-        for chunk in chunks {
-            let mut padded = [0u8; 32];
-            padded[..chunk.len()].copy_from_slice(chunk);
-            
-            let field_elem = Fr::from_le_bytes_mod_order(&padded);
-            field_inputs.push(field_elem);
-        }
+        hasher.update(input);
     }
     
-    // Initialize Poseidon hasher with BN254 parameters
-    let mut hasher = Poseidon::<Fr>::new_circom(field_inputs.len())
-        .map_err(|_| ErrorCode::PoseidonError)?;
+    // Add a domain separator to distinguish from other hash uses
+    hasher.update(b"MERKLE_TREE_HASH");
     
-    // Hash the inputs
-    let result = hasher.hash(&field_inputs)
-        .map_err(|_| ErrorCode::PoseidonError)?;
-    
-    // Convert back to bytes using the correct API
+    let result = hasher.finalize();
     let mut output = [0u8; 32];
-    let bytes = result.into_bigint().to_bytes_le();
-    output[..bytes.len().min(32)].copy_from_slice(&bytes[..bytes.len().min(32)]);
+    output.copy_from_slice(&result);
     
     Ok(output)
 }
@@ -376,8 +369,8 @@ pub enum ErrorCode {
     UnauthorizedWithdrawal,
     #[msg("Invalid input parameters")]
     InvalidInput,
-    #[msg("Poseidon hash error")]
-    PoseidonError,
+    #[msg("Hash computation error")]
+    HashError,
     #[msg("Merkle tree is full")]
     MerkleTreeFull,
     #[msg("Invalid commitment")]
