@@ -13,11 +13,19 @@ token-hooks = "6s5H6xDDWymGRtGN4Vpr5AqyvfRZ4cMhrZq5yJkQQrYU"
 x402-registry = "2a65ey6veP6vqa54K1AHg4fidM2YMH8cBLxacHNz8KCR"
 zk-meta-registry = "Fst8HV7eM3jNg4VjQWWHJUYxPr6E7AYz9hizZnsKUBT9"
 
+[programs.testnet]
+access-controller = "6TjVZeXZiRxVQBHoMvNzCYraRekbM16jJj6ycg8fFggZ"
+shielded-pool = "75cH7CRmvDyy7o3mGuWvJhffT7ZyLmYdvv7x36ZVhio1"
+spend-verifier = "CwJ5s1e69mv5uAnTyaAxos9DVVQ2kWcz53BQm6krzDG9"
+token-hooks = "6s5H6xDDWymGRtGN4Vpr5AqyvfRZ4cMhrZq5yJkQQrYU"
+x402-registry = "2a65ey6veP6vqa54K1AHg4fidM2YMH8cBLxacHNz8KCR"
+zk-meta-registry = "Fst8HV7eM3jNg4VjQWWHJUYxPr6E7AYz9hizZnsKUBT9"
+
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "testnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
