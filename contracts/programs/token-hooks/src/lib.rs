@@ -74,8 +74,8 @@ pub mod token_hooks {
             let cpi_ctx = CpiContext::new(
                 ctx.accounts.token_program.to_account_info(),
                 Transfer {
-                    from: ctx.accounts.payer_token_account.as_ref().unwrap().to_account_info(),
-                    to: ctx.accounts.recipient_token_account.as_ref().unwrap().to_account_info(),
+                    from: ctx.accounts.payer_token_account.as_ref().ok_or(ErrorCode::MissingTokenAccount)?.to_account_info(),
+                    to: ctx.accounts.recipient_token_account.as_ref().ok_or(ErrorCode::MissingTokenAccount)?.to_account_info(),
                     authority: ctx.accounts.buyer.to_account_info(),
                 },
             );
@@ -451,4 +451,6 @@ pub enum ErrorCode {
     InvalidSignature,
     #[msg("Payment proof has expired")]
     ProofExpired,
+    #[msg("Missing required token account")]
+    MissingTokenAccount,
 }
