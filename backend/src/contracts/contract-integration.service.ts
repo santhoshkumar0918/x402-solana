@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
-import { Program, AnchorProvider } from '@coral-xyz/anchor';
-import { BN } from 'bn.js';
+import { Connection, PublicKey, Transaction, SystemProgram, Keypair } from '@solana/web3.js';
+import * as anchor from '@coral-xyz/anchor';
+import BN from 'bn.js';
 
 // Import your contract IDLs (these would be generated from your deployed contracts)
 // import { ShieldedPoolIDL } from '../idl/shielded_pool';
@@ -42,7 +42,7 @@ export class ContractIntegrationService {
   constructor(
     private readonly redisService: RedisService,
     private readonly connection: Connection,
-    private readonly provider: AnchorProvider,
+    private readonly provider: anchor.AnchorProvider,
   ) {}
 
   /**
@@ -75,7 +75,7 @@ export class ContractIntegrationService {
       const transaction = await this.buildSpendTransaction(proof, contentId);
       
       // 4. Submit transaction
-      const signature = await this.connection.sendTransaction(transaction, {
+      const signature = await this.connection.sendTransaction(transaction, [], {
         preflightCommitment: 'confirmed',
       });
 

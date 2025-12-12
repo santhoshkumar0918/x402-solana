@@ -19,8 +19,9 @@ import * as entities from './database/entities';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       entities: Object.values(entities),
-      synchronize: process.env.NODE_ENV === 'development', // Auto-create tables in dev
+      synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
     RedisModule,
     SolanaModule,
