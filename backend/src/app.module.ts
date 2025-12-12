@@ -1,4 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApiController } from './api.controller';
@@ -10,9 +11,17 @@ import { MonitoringModule } from './monitoring/monitoring.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { AdminModule } from './admin/admin.module';
 import { X402Middleware } from './payment/x402.middleware';
+import * as entities from './database/entities';
 
 @Module({
   imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      entities: Object.values(entities),
+      synchronize: process.env.NODE_ENV === 'development', // Auto-create tables in dev
+      logging: process.env.NODE_ENV === 'development',
+    }),
     RedisModule,
     SolanaModule,
     PaymentModule,
