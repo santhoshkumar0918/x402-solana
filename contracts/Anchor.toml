@@ -14,12 +14,12 @@ x402-registry = "2a65ey6veP6vqa54K1AHg4fidM2YMH8cBLxacHNz8KCR"
 zk-meta-registry = "Fst8HV7eM3jNg4VjQWWHJUYxPr6E7AYz9hizZnsKUBT9"
 
 [programs.testnet]
-access-controller = "6TjVZeXZiRxVQBHoMvNzCYraRekbM16jJj6ycg8fFggZ"
-shielded-pool = "75cH7CRmvDyy7o3mGuWvJhffT7ZyLmYdvv7x36ZVhio1"
-spend-verifier = "CwJ5s1e69mv5uAnTyaAxos9DVVQ2kWcz53BQm6krzDG9"
-token-hooks = "6s5H6xDDWymGRtGN4Vpr5AqyvfRZ4cMhrZq5yJkQQrYU"
-x402-registry = "2a65ey6veP6vqa54K1AHg4fidM2YMH8cBLxacHNz8KCR"
-zk-meta-registry = "Fst8HV7eM3jNg4VjQWWHJUYxPr6E7AYz9hizZnsKUBT9"
+access-controller = "E668aMe8qjKg6jpTvdTbZiXf1MGNAmvtPv122wJCxuuP"
+shielded-pool = "7xJmW9tmnAZWyyYzyQW1sQHy1rRF9Vq2hoWhdqwU2CPD"
+spend-verifier = "HRpmTzRVZ9aELt6wT4urDArD8CnrJ6xpFaBVFqmJscbj"
+token-hooks = "5JM2rS68RLJbQG35b2sGmQCZ1d6zksoszwVMAeM69PcE"
+x402-registry = "6Mznzqj4hLgB58xfhv1rFhYQ5zWRKwcXc8Y7qUxADDPp"
+zk-meta-registry = "C6DR9nABrxAt4k4YKLXUhWaRJNVAMzdXvtSsJT82bcZz"
 
 [registry]
 url = "https://api.apr.dev"
