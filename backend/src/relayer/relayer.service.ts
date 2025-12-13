@@ -122,7 +122,7 @@ export class RelayerService {
       const result = await this.submitWithRetry(transaction, request);
 
       // 6. Track in Redis
-      await this.redisService.trackPaymentStatus(result.signature, 'submitted', {
+      await this.redisService.trackPaymentStatus(result.signature, 'confirmed', {
         contentId: request.contentId,
         priority: request.priority,
         submittedAt: new Date().toISOString(),

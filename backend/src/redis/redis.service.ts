@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import Redis from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
 export interface RedisConfig {
   host: string;
@@ -12,7 +12,7 @@ export interface RedisConfig {
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  private client: ReturnType<typeof Redis.createClient>;
+  private client: RedisClientType;
   private readonly config: RedisConfig;
 
   constructor() {
@@ -35,7 +35,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   private async connect(): Promise<void> {
     try {
-      this.client = Redis.createClient({
+      this.client = createClient({
         socket: {
           host: this.config.host,
           port: this.config.port,
@@ -300,7 +300,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get Redis client for advanced operations
    */
-  getClient(): ReturnType<typeof Redis.createClient> {
+  getClient(): RedisClientType {
     return this.client;
   }
 }
