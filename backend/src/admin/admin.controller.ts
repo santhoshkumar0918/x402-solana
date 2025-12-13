@@ -100,8 +100,8 @@ export class AdminController {
   /**
    * Get recent payments
    */
-  @Get('payments/recent/:limit?')
-  async getRecentPayments(@Param('limit') limit?: string): Promise<any[]> {
+  @Get('payments/recent/:limit')
+  async getRecentPayments(@Param('limit') limit: string): Promise<any[]> {
     const limitNum = limit ? parseInt(limit) : 10;
     return await this.contractService.getRecentPayments(limitNum);
   }
