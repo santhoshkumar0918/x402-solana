@@ -12,6 +12,7 @@ import { MonitoringModule } from './monitoring/monitoring.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { AdminModule } from './admin/admin.module';
 import { ProofModule } from './proof/proof.module';
+import { BridgeModule } from './bridge/bridge.module';
 import { X402Middleware } from './payment/x402.middleware';
 import { 
   ContentListing, 
@@ -22,6 +23,7 @@ import {
   MerkleRoot,
   // CrossChainTransaction  // Disabled due to TypeORM enum bug
 } from './database/entities';
+import { CrossChainPayment } from './database/entities/CrossChainPayment';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import {
         ZKKey,
         CredentialIssuer,
         MerkleRoot,
+        CrossChainPayment,
         // CrossChainTransaction, // Disabled due to TypeORM enum bug
       ],
       synchronize: process.env.NODE_ENV === 'development',
@@ -49,6 +52,7 @@ import {
     MonitoringModule,
     ContractsModule,
     AdminModule,
+    BridgeModule,
   ],
   controllers: [AppController, ApiController, ContentController],
   providers: [AppService],
