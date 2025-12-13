@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { createConnection } from 'typeorm';
 import { ZKKey } from './src/database/entities/zk-key.entity';
 import { CircuitType } from './src/database/entities/zk-key.entity';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 async function seedZKKeys() {
@@ -19,40 +19,69 @@ async function seedZKKeys() {
   const zkKeyRepository = connection.getRepository(ZKKey);
   const CIRCUITS_PATH = join(__dirname, '..', 'contracts', 'circuits', 'build');
 
-  try {
-    // Spend v2
-    const spendVkeyPath = join(CIRCUITS_PATH, 'verification_key_spend_v2.json');
-    const spendVkeyData = JSON.parse(readFileSync(spendVkeyPath, 'utf-8'));
+  async function seedCircuit(
+    circuitType: CircuitType,
+    version: string,
+    active: boolean
+  ) {
+    const baseName = circuitType.toLowerCase();
+    const versionSuffix = version === 'v2' ? '_v2' : '';
     
-    await zkKeyRepository.save({
-      circuitName: CircuitType.SPEND,
-      version: 'v2',
-      vkeyPath: spendVkeyPath,
-      zkeyPath: join(CIRCUITS_PATH, 'spend_0001_v2.zkey'),
-      wasmPath: join(CIRCUITS_PATH, 'spend_js', 'spend.wasm'),
-      vkeyData: spendVkeyData,
-      active: true,
-    });
-    console.log('✅ Seeded spend circuit v2');
+    const vkeyPath = join(CIRCUITS_PATH, `verification_key_${baseName}${versionSuffix}.json`);
+    
+    if (!existsSync(vkeyPath)) {
+      console.log(`⚠️  Skipping ${circuitType} ${version} - verification key not found`);
+      return;
+    }
 
-    // Credential v2
-    const credentialVkeyPath = join(CIRCUITS_PATH, 'verification_key_credential_v2.json');
-    const credentialVkeyData = JSON.parse(readFileSync(credentialVkeyPath, 'utf-8'));
-    
-    await zkKeyRepository.save({
-      circuitName: CircuitType.CREDENTIAL,
-      version: 'v2',
-      vkeyPath: credentialVkeyPath,
-      zkeyPath: join(CIRCUITS_PATH, 'credential_0001_v2.zkey'),
-      wasmPath: join(CIRCUITS_PATH, 'credential_js', 'credential.wasm'),
-      vkeyData: credentialVkeyData,
-      active: true,
-    });
-    console.log('✅ Seeded credential circuit v2');
+    try {
+      const vkeyData = JSON.parse(readFileSync(vkeyPath, 'utf-8'));
+      
+      const relativePaths = {
+        vkeyPath: `circuits/build/verification_key_${baseName}${versionSuffix}.json`,
+        zkeyPath: `circuits/build/${baseName}_0001${versionSuffix}.zkey`,
+        wasmPath: `circuits/build/${baseName}_js/${baseName}.wasm`,
+      };
+
+      const existingKey = await connection.query(
+        'SELECT * FROM zk_keys WHERE circuit_name = $1 AND version = $2',
+        [circuitType, version]
+      );
+
+      if (existingKey.length > 0) {
+        console.log(`⏭️  ${circuitType} ${version} already exists, skipping...`);
+        return;
+      }
+
+      await connection.query(
+        `INSERT INTO zk_keys (circuit_name, version, vkey_path, zkey_path, wasm_path, vkey_data, active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          circuitType,
+          version,
+          relativePaths.vkeyPath,
+          relativePaths.zkeyPath,
+          relativePaths.wasmPath,
+          vkeyData,
+          active,
+        ]
+      );
+
+      console.log(`✅ Seeded ${circuitType} ${version} (active: ${active})`);
+    } catch (error) {
+      console.error(`❌ Failed to seed ${circuitType} ${version}:`, error.message);
+    }
+  }
+
+  try {
+    await seedCircuit(CircuitType.SPEND, 'v2', true);
+    await seedCircuit(CircuitType.CREDENTIAL, 'v2', true);
+    await seedCircuit(CircuitType.SPEND, 'v1', false);
+    await seedCircuit(CircuitType.CREDENTIAL, 'v1', false);
 
     console.log('🎉 ZK keys seeding completed!');
   } catch (error) {
-    console.error('❌ Error seeding ZK keys:', error);
+    console.error('❌ Error during seeding:', error);
     throw error;
   } finally {
     await connection.close();
@@ -60,8 +89,11 @@ async function seedZKKeys() {
 }
 
 seedZKKeys()
-  .then(() => process.exit(0))
+  .then(() => {
+    console.log('✨ Seed script finished successfully');
+    process.exit(0);
+  })
   .catch((error) => {
-    console.error(error);
+    console.error('💥 Seed script failed:', error);
     process.exit(1);
   });
