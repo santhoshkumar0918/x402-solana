@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { Connection, PublicKey, ConfirmedSignatureInfo } from '@solana/web3.js';
-import { BN } from 'bn.js';
+import BN from 'bn.js';
 
 interface PaymentEvent {
   signature: string;
@@ -156,7 +156,7 @@ export class EventMonitorService {
             return {
               signature: signatureInfo.signature,
               slot: signatureInfo.slot,
-              blockTime: signatureInfo.blockTime,
+              blockTime: signatureInfo.blockTime ?? null,
               ...paymentData,
             };
           }
