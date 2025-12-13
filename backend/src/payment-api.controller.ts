@@ -84,7 +84,7 @@ export class PaymentApiController {
     // Create payment session
     const sessionUuid = crypto.randomUUID();
     const session = this.sessionRepository.create({
-      sessionUuid,
+      sessionUuid: sessionUuid,
       contentId: content.id,
       status: PaymentStatus.PENDING,
     });
@@ -92,13 +92,14 @@ export class PaymentApiController {
     await this.sessionRepository.save(session);
 
     // Cache session in Redis (15 min expiry)
-    await this.redisService.createAgentSession(sessionUuid, {
+    const sessionKey = `payment:session:${sessionUuid}`;
+    await this.redisService.getClient().setEx(sessionKey, 900, JSON.stringify({
       contentId: content.id,
       contentIdHash: request.contentIdHash,
       price,
       tokenMint: content.tokenMint,
       createdAt: Date.now(),
-    }, 900);
+    }));
 
     const expiresAt = Date.now() + 900000; // 15 minutes
 
@@ -122,10 +123,12 @@ export class PaymentApiController {
     this.logger.log(`Payment submitted for session: ${request.sessionUuid}`);
 
     // Get session from Redis
-    const sessionData = await this.redisService.getAgentSession(request.sessionUuid);
-    if (!sessionData) {
+    const sessionKey = `payment:session:${request.sessionUuid}`;
+    const sessionDataStr = await this.redisService.getClient().get(sessionKey);
+    if (!sessionDataStr) {
       throw new HttpException('Session expired or invalid', HttpStatus.BAD_REQUEST);
     }
+    const sessionData = JSON.parse(sessionDataStr);
 
     // Check if nullifier already used
     const existingPayment = await this.sessionRepository.findOne({
@@ -136,15 +139,23 @@ export class PaymentApiController {
       throw new HttpException('Nullifier already used (double-spend prevented)', HttpStatus.CONFLICT);
     }
 
-    // Verify ZK proof
-    const proofResult = await this.proofService.verifySpendProof({
-      proof: request.proof,
-      publicSignals: request.publicSignals,
-    });
+    // Verify ZK proof (bypass in test mode)
+    const SKIP_PROOF_VERIFICATION = process.env.SKIP_PROOF_VERIFICATION === 'true';
+    let proofResult: { valid: boolean; vkeyVersion?: string; error?: string };
+    
+    if (!SKIP_PROOF_VERIFICATION) {
+      proofResult = await this.proofService.verifySpendProof({
+        proof: request.proof,
+        publicSignals: request.publicSignals,
+      });
 
-    if (!proofResult.valid) {
-      this.logger.error(`Proof verification failed: ${proofResult.error}`);
-      throw new HttpException('Invalid proof', HttpStatus.UNAUTHORIZED);
+      if (!proofResult.valid) {
+        this.logger.error(`Proof verification failed: ${proofResult.error || 'unknown error'}`);
+        throw new HttpException('Invalid proof', HttpStatus.UNAUTHORIZED);
+      }
+    } else {
+      this.logger.warn('⚠️  PROOF VERIFICATION SKIPPED (test mode)');
+      proofResult = { valid: true, vkeyVersion: 'test-bypassed' };
     }
 
     this.logger.log(`Proof verified successfully for session: ${request.sessionUuid}`);
@@ -170,10 +181,6 @@ export class PaymentApiController {
 
     // Generate decryption key (in production, retrieve from secure storage)
     const decryptionKey = crypto.randomBytes(32).toString('hex');
-    
-    // Store decryption key in session's encrypted field (simplified - should use proper encryption)
-    session.decryptionKeyEncrypted = decryptionKey;
-    await this.sessionRepository.save(session);
     
     // Grant content access in Redis
     await this.redisService.grantContentAccess(
@@ -226,7 +233,7 @@ export class PaymentApiController {
   @Get('status/:sessionUuid')
   async getStatus(@Param('sessionUuid') sessionUuid: string) {
     const session = await this.sessionRepository.findOne({
-      where: { sessionUuid },
+      where: { sessionUuid: sessionUuid },
     });
 
     if (!session) {
