@@ -1,0 +1,947 @@
+{
+  "address": "6Mznzqj4hLgB58xfhv1rFhYQ5zWRKwcXc8Y7qUxADDPp",
+  "metadata": {
+    "name": "x402_registry",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the x402 content registry"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  120,
+                  52,
+                  48,
+                  50,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "purchase_content",
+      "docs": [
+        "Purchase content with ZK proof payment"
+      ],
+      "discriminator": [
+        209,
+        29,
+        229,
+        53,
+        145,
+        17,
+        239,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "registry",
+          "writable": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "purchase",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "buyer_credentials",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "CredentialProof"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_content",
+      "docs": [
+        "Register new content for sale"
+      ],
+      "discriminator": [
+        170,
+        55,
+        41,
+        115,
+        252,
+        248,
+        38,
+        144
+      ],
+      "accounts": [
+        {
+          "name": "registry",
+          "writable": true
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "registry.listing_count",
+                "account": "X402Registry"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "pricing_config",
+          "type": {
+            "defined": {
+              "name": "PricingConfig"
+            }
+          }
+        },
+        {
+          "name": "required_credentials",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "CredentialRequirement"
+              }
+            }
+          }
+        },
+        {
+          "name": "zk_attestations",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "ZkAttestation"
+              }
+            }
+          }
+        },
+        {
+          "name": "metadata",
+          "type": {
+            "defined": {
+              "name": "ContentMetadata"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_platform_fee",
+      "docs": [
+        "Set platform fee (admin only)"
+      ],
+      "discriminator": [
+        19,
+        70,
+        111,
+        182,
+        156,
+        58,
+        208,
+        203
+      ],
+      "accounts": [
+        {
+          "name": "registry",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_fee_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "update_listing",
+      "docs": [
+        "Update content listing"
+      ],
+      "discriminator": [
+        192,
+        174,
+        210,
+        68,
+        116,
+        40,
+        242,
+        253
+      ],
+      "accounts": [
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_pricing",
+          "type": {
+            "option": {
+              "defined": {
+                "name": "PricingConfig"
+              }
+            }
+          }
+        },
+        {
+          "name": "new_metadata",
+          "type": {
+            "option": {
+              "defined": {
+                "name": "ContentMetadata"
+              }
+            }
+          }
+        },
+        {
+          "name": "is_active",
+          "type": {
+            "option": "bool"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ContentListing",
+      "discriminator": [
+        202,
+        88,
+        137,
+        247,
+        135,
+        198,
+        185,
+        124
+      ]
+    },
+    {
+      "name": "PurchaseRecord",
+      "discriminator": [
+        239,
+        38,
+        40,
+        199,
+        4,
+        96,
+        209,
+        2
+      ]
+    },
+    {
+      "name": "X402Registry",
+      "discriminator": [
+        140,
+        119,
+        1,
+        150,
+        8,
+        128,
+        245,
+        231
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ContentPurchased",
+      "discriminator": [
+        169,
+        15,
+        77,
+        175,
+        180,
+        109,
+        24,
+        168
+      ]
+    },
+    {
+      "name": "ContentRegistered",
+      "discriminator": [
+        234,
+        59,
+        220,
+        137,
+        21,
+        89,
+        2,
+        148
+      ]
+    },
+    {
+      "name": "ListingUpdated",
+      "discriminator": [
+        190,
+        215,
+        199,
+        138,
+        255,
+        248,
+        98,
+        62
+      ]
+    },
+    {
+      "name": "PlatformFeeUpdated",
+      "discriminator": [
+        210,
+        134,
+        201,
+        4,
+        92,
+        228,
+        80,
+        26
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidPrice",
+      "msg": "Invalid price: must be greater than 0"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidContentHash",
+      "msg": "Invalid content hash"
+    },
+    {
+      "code": 6002,
+      "name": "TitleTooLong",
+      "msg": "Title too long (max 128 chars)"
+    },
+    {
+      "code": 6003,
+      "name": "DescriptionTooLong",
+      "msg": "Description too long (max 512 chars)"
+    },
+    {
+      "code": 6004,
+      "name": "ListingInactive",
+      "msg": "Listing is inactive"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access"
+    },
+    {
+      "code": 6006,
+      "name": "FeeTooHigh",
+      "msg": "Platform fee too high (max 10%)"
+    }
+  ],
+  "types": [
+    {
+      "name": "AttestationType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "EmailDomain"
+          },
+          {
+            "name": "Timestamp"
+          },
+          {
+            "name": "GpsLocation"
+          },
+          {
+            "name": "SensorData"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContentCategory",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Documents"
+          },
+          {
+            "name": "DataFeed"
+          },
+          {
+            "name": "Media"
+          },
+          {
+            "name": "Code"
+          },
+          {
+            "name": "Other"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContentListing",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pricing",
+            "type": {
+              "defined": {
+                "name": "PricingConfig"
+              }
+            }
+          },
+          {
+            "name": "required_credentials",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CredentialRequirement"
+                }
+              }
+            }
+          },
+          {
+            "name": "zk_attestations",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "ZkAttestation"
+                }
+              }
+            }
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "defined": {
+                "name": "ContentMetadata"
+              }
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          },
+          {
+            "name": "purchase_count",
+            "type": "u64"
+          },
+          {
+            "name": "total_revenue",
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContentMetadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": {
+              "defined": {
+                "name": "ContentCategory"
+              }
+            }
+          },
+          {
+            "name": "tags",
+            "type": {
+              "vec": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContentPurchased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "price_paid",
+            "type": "u64"
+          },
+          {
+            "name": "platform_fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ContentRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "base_price",
+            "type": "u64"
+          },
+          {
+            "name": "zk_proofs",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialDiscount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "credential_type",
+            "type": {
+              "defined": {
+                "name": "CredentialType"
+              }
+            }
+          },
+          {
+            "name": "discount_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "credential_type",
+            "type": {
+              "defined": {
+                "name": "CredentialType"
+              }
+            }
+          },
+          {
+            "name": "proof_data",
+            "type": "bytes"
+          },
+          {
+            "name": "issuer_pubkey",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialRequirement",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "credential_type",
+            "type": {
+              "defined": {
+                "name": "CredentialType"
+              }
+            }
+          },
+          {
+            "name": "required",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Journalist"
+          },
+          {
+            "name": "Human"
+          },
+          {
+            "name": "Organization"
+          },
+          {
+            "name": "Developer"
+          },
+          {
+            "name": "Custom",
+            "fields": [
+              "string"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlatformFeeUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "old_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "new_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "updated_by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PricingConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "base_price",
+            "type": "u64"
+          },
+          {
+            "name": "credential_discounts",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CredentialDiscount"
+                }
+              }
+            }
+          },
+          {
+            "name": "volume_discount",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "VolumeDiscount"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PurchaseRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "final_price",
+            "type": "u64"
+          },
+          {
+            "name": "purchased_at",
+            "type": "i64"
+          },
+          {
+            "name": "credentials_used",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CredentialProof"
+                }
+              }
+            }
+          },
+          {
+            "name": "access_granted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VolumeDiscount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "min_purchases",
+            "type": "u32"
+          },
+          {
+            "name": "discount_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "X402Registry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "listing_count",
+            "type": "u64"
+          },
+          {
+            "name": "total_revenue",
+            "type": "u64"
+          },
+          {
+            "name": "platform_fee_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ZkAttestation",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "attestation_type",
+            "type": {
+              "defined": {
+                "name": "AttestationType"
+              }
+            }
+          },
+          {
+            "name": "proof_data",
+            "type": "bytes"
+          },
+          {
+            "name": "verified_at",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

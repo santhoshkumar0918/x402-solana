@@ -1,0 +1,892 @@
+{
+  "address": "5JM2rS68RLJbQG35b2sGmQCZ1d6zksoszwVMAeM69PcE",
+  "metadata": {
+    "name": "token_hooks",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "batch_process_triggers",
+      "docs": [
+        "Batch process multiple payment triggers"
+      ],
+      "discriminator": [
+        34,
+        181,
+        156,
+        250,
+        75,
+        160,
+        157,
+        163
+      ],
+      "accounts": [
+        {
+          "name": "hooks",
+          "writable": true
+        },
+        {
+          "name": "buyer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "triggers",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "TriggerRequest"
+              }
+            }
+          }
+        }
+      ],
+      "returns": {
+        "vec": "bool"
+      }
+    },
+    {
+      "name": "emergency_pause",
+      "docs": [
+        "Emergency pause all hooks"
+      ],
+      "discriminator": [
+        21,
+        143,
+        27,
+        142,
+        200,
+        181,
+        210,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "hooks",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the token hooks system"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "hooks",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  104,
+                  111,
+                  111,
+                  107,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "process_payment_trigger",
+      "docs": [
+        "Process payment and automatically trigger content unlock"
+      ],
+      "discriminator": [
+        222,
+        62,
+        31,
+        113,
+        180,
+        113,
+        19,
+        183
+      ],
+      "accounts": [
+        {
+          "name": "hooks",
+          "writable": true
+        },
+        {
+          "name": "payment_hook",
+          "writable": true
+        },
+        {
+          "name": "access_controller",
+          "writable": true
+        },
+        {
+          "name": "access_permission",
+          "writable": true
+        },
+        {
+          "name": "purchase_record",
+          "writable": true
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "recipient_token_account",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "access_controller_program",
+          "address": "6TjVZeXZiRxVQBHoMvNzCYraRekbM16jJj6ycg8fFggZ"
+        },
+        {
+          "name": "token_hooks_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payment_amount",
+          "type": "u64"
+        },
+        {
+          "name": "payment_proof",
+          "type": {
+            "defined": {
+              "name": "PaymentProof"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_payment_hook",
+      "docs": [
+        "Register a payment hook for automatic content unlocking"
+      ],
+      "discriminator": [
+        131,
+        220,
+        5,
+        123,
+        31,
+        140,
+        161,
+        252
+      ],
+      "accounts": [
+        {
+          "name": "hooks",
+          "writable": true
+        },
+        {
+          "name": "payment_hook",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116,
+                  95,
+                  104,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hooks.total_hooks",
+                "account": "TokenHooks"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "trigger_amount",
+          "type": "u64"
+        },
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "unlock_duration",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_payment_hook",
+      "docs": [
+        "Update payment hook settings"
+      ],
+      "discriminator": [
+        31,
+        25,
+        84,
+        71,
+        96,
+        144,
+        241,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "payment_hook",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_trigger_amount",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "new_unlock_duration",
+          "type": {
+            "option": {
+              "option": "i64"
+            }
+          }
+        },
+        {
+          "name": "is_active",
+          "type": {
+            "option": "bool"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AccessController",
+      "discriminator": [
+        143,
+        45,
+        12,
+        204,
+        220,
+        20,
+        114,
+        87
+      ]
+    },
+    {
+      "name": "PaymentHook",
+      "discriminator": [
+        133,
+        119,
+        33,
+        132,
+        255,
+        226,
+        203,
+        45
+      ]
+    },
+    {
+      "name": "PurchaseRecord",
+      "discriminator": [
+        239,
+        38,
+        40,
+        199,
+        4,
+        96,
+        209,
+        2
+      ]
+    },
+    {
+      "name": "TokenHooks",
+      "discriminator": [
+        140,
+        246,
+        228,
+        198,
+        204,
+        210,
+        183,
+        28
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BatchTriggersProcessed",
+      "discriminator": [
+        148,
+        154,
+        247,
+        52,
+        130,
+        38,
+        131,
+        69
+      ]
+    },
+    {
+      "name": "EmergencyPauseActivated",
+      "discriminator": [
+        27,
+        50,
+        161,
+        55,
+        240,
+        51,
+        173,
+        218
+      ]
+    },
+    {
+      "name": "PaymentHookRegistered",
+      "discriminator": [
+        157,
+        37,
+        37,
+        234,
+        67,
+        197,
+        51,
+        116
+      ]
+    },
+    {
+      "name": "PaymentHookUpdated",
+      "discriminator": [
+        13,
+        225,
+        200,
+        137,
+        90,
+        55,
+        61,
+        101
+      ]
+    },
+    {
+      "name": "PaymentTriggered",
+      "discriminator": [
+        175,
+        153,
+        248,
+        232,
+        211,
+        139,
+        229,
+        113
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidTriggerAmount",
+      "msg": "Invalid trigger amount: must be greater than 0"
+    },
+    {
+      "code": 6001,
+      "name": "HookInactive",
+      "msg": "Payment hook is inactive"
+    },
+    {
+      "code": 6002,
+      "name": "InsufficientPayment",
+      "msg": "Insufficient payment amount"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidPaymentProof",
+      "msg": "Invalid payment proof"
+    },
+    {
+      "code": 6004,
+      "name": "TooManyTriggers",
+      "msg": "Too many triggers in batch (max 5)"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access"
+    },
+    {
+      "code": 6006,
+      "name": "AmountMismatch",
+      "msg": "Amount mismatch in payment proof"
+    },
+    {
+      "code": 6007,
+      "name": "ContentHashMismatch",
+      "msg": "Content hash mismatch"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidSignature",
+      "msg": "Invalid signature format"
+    },
+    {
+      "code": 6009,
+      "name": "ProofExpired",
+      "msg": "Payment proof has expired"
+    },
+    {
+      "code": 6010,
+      "name": "MissingTokenAccount",
+      "msg": "Missing required token account"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccessController",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_access_grants",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BatchTriggersProcessed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "trigger_count",
+            "type": "u8"
+          },
+          {
+            "name": "successful_count",
+            "type": "u8"
+          },
+          {
+            "name": "processed_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "credential_type",
+            "type": {
+              "defined": {
+                "name": "CredentialType"
+              }
+            }
+          },
+          {
+            "name": "proof_data",
+            "type": "bytes"
+          },
+          {
+            "name": "issuer_pubkey",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Journalist"
+          },
+          {
+            "name": "Human"
+          },
+          {
+            "name": "Organization"
+          },
+          {
+            "name": "Developer"
+          },
+          {
+            "name": "Custom",
+            "fields": [
+              "string"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "EmergencyPauseActivated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "paused_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentHook",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hook_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "trigger_amount",
+            "type": "u64"
+          },
+          {
+            "name": "unlock_duration",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "trigger_count",
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentHookRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hook_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "trigger_amount",
+            "type": "u64"
+          },
+          {
+            "name": "unlock_duration",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentHookUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hook_id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nullifier_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "tx_signature",
+            "type": "bytes"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentTriggered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hook_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "triggered_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PurchaseRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "final_price",
+            "type": "u64"
+          },
+          {
+            "name": "purchased_at",
+            "type": "i64"
+          },
+          {
+            "name": "credentials_used",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CredentialProof"
+                }
+              }
+            }
+          },
+          {
+            "name": "access_granted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenHooks",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_hooks",
+            "type": "u64"
+          },
+          {
+            "name": "total_triggers",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TriggerRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hook_id",
+            "type": "u64"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "payment_proof",
+            "type": {
+              "defined": {
+                "name": "PaymentProof"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

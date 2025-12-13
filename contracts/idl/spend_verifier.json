@@ -1,0 +1,683 @@
+{
+  "address": "HRpmTzRVZ9aELt6wT4urDArD8CnrJ6xpFaBVFqmJscbj",
+  "metadata": {
+    "name": "spend_verifier",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the spend verifier with verification key"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "verifier",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  112,
+                  101,
+                  110,
+                  100,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "nullifier_set",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  117,
+                  108,
+                  108,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  115,
+                  101,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause_verifier",
+      "docs": [
+        "Emergency pause functionality"
+      ],
+      "discriminator": [
+        122,
+        62,
+        165,
+        254,
+        125,
+        182,
+        151,
+        166
+      ],
+      "accounts": [
+        {
+          "name": "verifier",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  112,
+                  101,
+                  110,
+                  100,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unpause_verifier",
+      "docs": [
+        "Resume verifier operations"
+      ],
+      "discriminator": [
+        160,
+        95,
+        153,
+        137,
+        127,
+        193,
+        232,
+        58
+      ],
+      "accounts": [
+        {
+          "name": "verifier",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  112,
+                  101,
+                  110,
+                  100,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "verify_spend_proof",
+      "docs": [
+        "Verify a spend proof and execute the payment"
+      ],
+      "discriminator": [
+        195,
+        210,
+        65,
+        67,
+        231,
+        216,
+        212,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "verifier",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  112,
+                  101,
+                  110,
+                  100,
+                  95,
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "nullifier_set",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  117,
+                  108,
+                  108,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  115,
+                  101,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "shielded_pool",
+          "writable": true
+        },
+        {
+          "name": "pool_authority"
+        },
+        {
+          "name": "pool_token",
+          "writable": true
+        },
+        {
+          "name": "recipient_token",
+          "writable": true
+        },
+        {
+          "name": "shielded_pool_program",
+          "address": "75cH7CRmvDyy7o3mGuWvJhffT7ZyLmYdvv7x36ZVhio1"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "proof",
+          "type": {
+            "defined": {
+              "name": "Groth16Proof"
+            }
+          }
+        },
+        {
+          "name": "public_signals",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "NullifierSet",
+      "discriminator": [
+        251,
+        219,
+        17,
+        100,
+        208,
+        102,
+        127,
+        25
+      ]
+    },
+    {
+      "name": "ShieldedPool",
+      "discriminator": [
+        104,
+        47,
+        208,
+        0,
+        63,
+        250,
+        170,
+        103
+      ]
+    },
+    {
+      "name": "SpendVerifier",
+      "discriminator": [
+        77,
+        216,
+        254,
+        176,
+        169,
+        96,
+        111,
+        97
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "SpendVerificationEvent",
+      "discriminator": [
+        28,
+        155,
+        7,
+        206,
+        109,
+        70,
+        181,
+        182
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidPublicInputCount",
+      "msg": "Invalid number of public inputs"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidProof",
+      "msg": "Invalid ZK proof"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidMerkleRoot",
+      "msg": "Invalid Merkle root"
+    },
+    {
+      "code": 6003,
+      "name": "DoubleSpend",
+      "msg": "Double spend attempt detected"
+    },
+    {
+      "code": 6004,
+      "name": "NullifierSetFull",
+      "msg": "Nullifier set is full"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access"
+    },
+    {
+      "code": 6006,
+      "name": "VerifierPaused",
+      "msg": "Verifier is paused"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidPublicSignal",
+      "msg": "Invalid public signal format"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidVerificationKey",
+      "msg": "Invalid verification key"
+    }
+  ],
+  "types": [
+    {
+      "name": "G1Point",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "G2Point",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "x",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                2
+              ]
+            }
+          },
+          {
+            "name": "y",
+            "type": {
+              "array": [
+                {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                },
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Groth16Proof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pi_a",
+            "type": {
+              "defined": {
+                "name": "G1Point"
+              }
+            }
+          },
+          {
+            "name": "pi_b",
+            "type": {
+              "defined": {
+                "name": "G2Point"
+              }
+            }
+          },
+          {
+            "name": "pi_c",
+            "type": {
+              "defined": {
+                "name": "G1Point"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NullifierSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nullifiers",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShieldedPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "merkle_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "tree_height",
+            "type": "u8"
+          },
+          {
+            "name": "next_index",
+            "type": "u64"
+          },
+          {
+            "name": "total_deposits",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SpendVerificationEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nullifier_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "external_nullifier",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "merkle_root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SpendVerifier",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "verification_key",
+            "type": {
+              "defined": {
+                "name": "VerificationKey"
+              }
+            }
+          },
+          {
+            "name": "nullifier_count",
+            "type": "u64"
+          },
+          {
+            "name": "total_verified_amount",
+            "type": "u64"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VerificationKey",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "alpha_g1",
+            "type": {
+              "defined": {
+                "name": "G1Point"
+              }
+            }
+          },
+          {
+            "name": "beta_g2",
+            "type": {
+              "defined": {
+                "name": "G2Point"
+              }
+            }
+          },
+          {
+            "name": "gamma_g2",
+            "type": {
+              "defined": {
+                "name": "G2Point"
+              }
+            }
+          },
+          {
+            "name": "delta_g2",
+            "type": {
+              "defined": {
+                "name": "G2Point"
+              }
+            }
+          },
+          {
+            "name": "ic",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "G1Point"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

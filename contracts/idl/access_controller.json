@@ -1,0 +1,770 @@
+{
+  "address": "E668aMe8qjKg6jpTvdTbZiXf1MGNAmvtPv122wJCxuuP",
+  "metadata": {
+    "name": "access_controller",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "batch_verify_access",
+      "docs": [
+        "Batch verify access for multiple content items"
+      ],
+      "discriminator": [
+        56,
+        13,
+        223,
+        23,
+        62,
+        243,
+        207,
+        61
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "content_hashes",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        }
+      ],
+      "returns": {
+        "vec": "bool"
+      }
+    },
+    {
+      "name": "extend_access",
+      "docs": [
+        "Extend access duration"
+      ],
+      "discriminator": [
+        184,
+        55,
+        17,
+        18,
+        17,
+        101,
+        142,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "access_permission",
+          "writable": true
+        },
+        {
+          "name": "buyer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "additional_duration",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "grant_access",
+      "docs": [
+        "Grant access to content after successful purchase"
+      ],
+      "discriminator": [
+        66,
+        88,
+        87,
+        113,
+        39,
+        22,
+        27,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "controller",
+          "writable": true
+        },
+        {
+          "name": "access_permission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  101,
+                  115,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "arg",
+                "path": "content_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "purchase_record",
+          "writable": true
+        },
+        {
+          "name": "caller_program"
+        },
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "access_duration",
+          "type": {
+            "option": "i64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Initialize the access controller"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "controller",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  101,
+                  115,
+                  115,
+                  95,
+                  99,
+                  111,
+                  110,
+                  116,
+                  114,
+                  111,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "revoke_access",
+      "docs": [
+        "Revoke access (emergency or policy violation)"
+      ],
+      "discriminator": [
+        106,
+        128,
+        38,
+        169,
+        103,
+        238,
+        102,
+        147
+      ],
+      "accounts": [
+        {
+          "name": "controller"
+        },
+        {
+          "name": "access_permission",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "verify_access",
+      "docs": [
+        "Verify access permissions (called before content delivery)"
+      ],
+      "discriminator": [
+        198,
+        35,
+        119,
+        166,
+        140,
+        214,
+        241,
+        222
+      ],
+      "accounts": [
+        {
+          "name": "access_permission",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  101,
+                  115,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "arg",
+                "path": "content_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "content_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ],
+      "returns": "bool"
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AccessController",
+      "discriminator": [
+        143,
+        45,
+        12,
+        204,
+        220,
+        20,
+        114,
+        87
+      ]
+    },
+    {
+      "name": "AccessPermission",
+      "discriminator": [
+        34,
+        37,
+        11,
+        32,
+        226,
+        12,
+        217,
+        33
+      ]
+    },
+    {
+      "name": "PurchaseRecord",
+      "discriminator": [
+        239,
+        38,
+        40,
+        199,
+        4,
+        96,
+        209,
+        2
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AccessExtended",
+      "discriminator": [
+        120,
+        158,
+        59,
+        46,
+        228,
+        170,
+        47,
+        128
+      ]
+    },
+    {
+      "name": "AccessGranted",
+      "discriminator": [
+        21,
+        212,
+        83,
+        192,
+        198,
+        26,
+        62,
+        185
+      ]
+    },
+    {
+      "name": "AccessRevoked",
+      "discriminator": [
+        200,
+        160,
+        73,
+        43,
+        201,
+        165,
+        43,
+        159
+      ]
+    },
+    {
+      "name": "AccessVerified",
+      "discriminator": [
+        39,
+        189,
+        54,
+        21,
+        173,
+        37,
+        247,
+        202
+      ]
+    },
+    {
+      "name": "BatchAccessVerified",
+      "discriminator": [
+        132,
+        80,
+        190,
+        191,
+        242,
+        103,
+        225,
+        124
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "BuyerMismatch",
+      "msg": "Buyer mismatch"
+    },
+    {
+      "code": 6001,
+      "name": "UnauthorizedCaller",
+      "msg": "Unauthorized caller program"
+    },
+    {
+      "code": 6002,
+      "name": "AccessRevoked",
+      "msg": "Access has been revoked"
+    },
+    {
+      "code": 6003,
+      "name": "ContentMismatch",
+      "msg": "Content hash mismatch"
+    },
+    {
+      "code": 6004,
+      "name": "AccessExpired",
+      "msg": "Access has expired"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access"
+    },
+    {
+      "code": 6006,
+      "name": "ReasonTooLong",
+      "msg": "Reason too long (max 256 chars)"
+    },
+    {
+      "code": 6007,
+      "name": "TooManyItems",
+      "msg": "Too many items in batch (max 10)"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidSignature",
+      "msg": "Invalid signature"
+    },
+    {
+      "code": 6009,
+      "name": "SignatureVerificationFailed",
+      "msg": "Signature verification failed"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccessController",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_access_grants",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccessExtended",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "new_expiry",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "extended_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccessGranted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "granted_at",
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccessPermission",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "granted_at",
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "access_count",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccessRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "revoked_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "revoked_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccessVerified",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "access_count",
+            "type": "u64"
+          },
+          {
+            "name": "verified_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BatchAccessVerified",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "content_count",
+            "type": "u8"
+          },
+          {
+            "name": "verified_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "credential_type",
+            "type": {
+              "defined": {
+                "name": "CredentialType"
+              }
+            }
+          },
+          {
+            "name": "proof_data",
+            "type": "bytes"
+          },
+          {
+            "name": "issuer_pubkey",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CredentialType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Journalist"
+          },
+          {
+            "name": "Human"
+          },
+          {
+            "name": "Organization"
+          },
+          {
+            "name": "Developer"
+          },
+          {
+            "name": "Custom",
+            "fields": [
+              "string"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "PurchaseRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "final_price",
+            "type": "u64"
+          },
+          {
+            "name": "purchased_at",
+            "type": "i64"
+          },
+          {
+            "name": "credentials_used",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CredentialProof"
+                }
+              }
+            }
+          },
+          {
+            "name": "access_granted",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ]
+}
