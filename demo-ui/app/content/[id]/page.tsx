@@ -78,23 +78,19 @@ export default function ContentDetailPage() {
     const loadContent = async () => {
       try {
         setLoading(true);
-        // Simulate API delay or fetch
-        // const data = await contentApi.getById(contentId); 
-        // setContent(data);
+        // Fetch real content from API
+        const data = await contentApi.getById(contentId); 
+        setContent(data);
         
-        // Using Mock for UI Demo (Revert to your API call logic here)
-        const mockContent = MOCK_CONTENT[contentId];
-        if (mockContent) {
-           setContent(mockContent);
-           // Decryption logic
-           if (decryptionKey && decryptionKey.startsWith('0x')) {
-             setIsUnlocked(true);
-             setDecryptedContent(mockContent.fullDescription);
-           }
+        // If user has decryption key, unlock content
+        if (decryptionKey && decryptionKey.length > 0) {
+          setIsUnlocked(true);
+          setDecryptedContent(data.fullDescription || data.description);
         }
 
       } catch (err) {
         console.error('Failed to load content:', err);
+        setContent(null);
       } finally {
         setLoading(false);
       }
@@ -179,9 +175,9 @@ export default function ContentDetailPage() {
                 <div className="flex items-center gap-3 text-sm text-gray-400 mb-6">
                   <span className="flex items-center gap-1.5">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-700 to-black border border-white/10 flex items-center justify-center text-[10px] text-white">
-                      {content.creator[0]}
+                      {content.creator?.[0] || '?'}
                     </div>
-                    {content.creator}
+                    {content.creator || 'Unknown'}
                   </span>
                   <span className="w-1 h-1 rounded-full bg-gray-700" />
                   <span className="flex items-center gap-1.5">
@@ -191,7 +187,7 @@ export default function ContentDetailPage() {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  {content.tags.map(tag => (
+                  {(content.tags || []).map(tag => (
                     <span key={tag} className="text-xs px-2.5 py-1 bg-black/40 border border-white/5 text-gray-500 rounded hover:text-gray-300 transition-colors cursor-default">
                       #{tag}
                     </span>
@@ -202,14 +198,14 @@ export default function ContentDetailPage() {
               {/* Price Block */}
               <div className="shrink-0 flex flex-col items-end">
                 <div className="bg-black/50 border border-white/10 rounded-2xl p-6 text-right backdrop-blur-md">
-                   {content.discountedPrice < content.price && (
+                   {(content.discountedPrice || 0) < (content.price || 0) && (
                     <div className="text-xs text-gray-500 line-through mb-1">
-                      ${content.price.toFixed(2)}
+                      ${(content.price || 0).toFixed(2)}
                     </div>
                   )}
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-mono font-bold text-white tracking-tighter">
-                      ${content.discountedPrice.toFixed(2)}
+                      ${(content.discountedPrice || content.price || 0).toFixed(2)}
                     </span>
                     <span className="text-sm text-gray-500 font-medium">USDC</span>
                   </div>
@@ -253,7 +249,7 @@ export default function ContentDetailPage() {
                         </div>
                         <div>
                           <h3 className="text-white font-semibold">Decrypted Payload</h3>
-                          <p className="text-xs text-gray-500 font-mono">HASH: {content.contentHash.substring(0, 12)}...</p>
+                          <p className="text-xs text-gray-500 font-mono">HASH: {(content.contentHash || 'unknown').substring(0, 12)}...</p>
                         </div>
                       </div>
                       <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-medium text-white rounded-lg transition-colors flex items-center gap-2">
@@ -310,7 +306,7 @@ export default function ContentDetailPage() {
                         >
                           <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#500724_50%,#E2E8F0_100%)]" />
                           <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-xl bg-black px-8 py-4 text-sm font-bold text-white backdrop-blur-3xl transition-all group-hover:bg-gray-900 group-hover:text-green-400">
-                            Unlock for ${content.discountedPrice.toFixed(2)}
+                            Unlock for ${(content.discountedPrice || content.price || 0).toFixed(2)}
                             <ChevronRight className="ml-2 h-4 w-4" />
                           </span>
                         </button>
@@ -360,9 +356,9 @@ export default function ContentDetailPage() {
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         contentId={content.id}
-        contentTitle={content.title}
-        price={content.discountedPrice}
-        credentialType={content.credentialType}
+        contentTitle={content.title || 'Untitled'}
+        price={content.discountedPrice || content.price || 0}
+        credentialType={content.credentialType || 'none'}
       />
     </div>
   );

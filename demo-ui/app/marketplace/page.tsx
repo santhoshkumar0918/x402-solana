@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, useMotionTemplate, useMotionValue, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Shield, Clock, Loader2, Tag, ChevronDown, Check, Activity, Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { contentApi } from '@/lib/api';
 
 // --- Types & Data ---
 
@@ -93,7 +94,19 @@ export default function MarketplacePage() {
   const categories = ['All', 'Investigative Journalism', 'Academic Research', 'Corporate Intelligence'];
 
   useEffect(() => {
-    setTimeout(() => { setContent(MOCK_CONTENT); setLoading(false); }, 800);
+    async function fetchContent() {
+      try {
+        setLoading(true);
+        const data = await contentApi.list();
+        setContent(data);
+      } catch (error) {
+        console.error('Failed to fetch content:', error);
+        setContent([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchContent();
   }, []);
 
   const filteredContent = content.filter(item => {
