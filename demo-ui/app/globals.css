@@ -146,3 +146,96 @@
     transform: translateY(0);
   }
 }
+
+
+/* --- SPECTER WALLET ADAPTER OVERRIDES --- */
+
+/* 1. The Main Button (Navbar) */
+.wallet-adapter-button {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.wallet-adapter-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(34, 197, 94, 0.5) !important; /* Green glow */
+  box-shadow: 0 0 15px -3px rgba(34, 197, 94, 0.3) !important;
+}
+
+/* 2. The Modal Overlay (Backdrop) */
+.wallet-adapter-modal-wrapper {
+  background: #0a0a0a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 0 50px -10px rgba(0, 0, 0, 0.8) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Add a glowing top border to the modal */
+.wallet-adapter-modal-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #22c55e, transparent);
+  opacity: 0.5;
+}
+
+/* 3. Modal Title */
+.wallet-adapter-modal-title {
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* 4. Close Button */
+.wallet-adapter-modal-button-close {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 50% !important;
+}
+.wallet-adapter-modal-button-close svg {
+  fill: #737373 !important;
+  transition: fill 0.2s ease;
+}
+.wallet-adapter-modal-button-close:hover svg {
+  fill: #fff !important;
+}
+
+/* 5. Wallet List Items */
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  font-weight: 500 !important;
+  color: #a3a3a3 !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background: rgba(34, 197, 94, 0.05) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+  color: #fff !important;
+}
+
+/* 6. Wallet Icons */
+.wallet-adapter-button-start-icon {
+  margin-right: 12px !important;
+}
+
+/* Hide the "More options" text if it breaks layout */
+.wallet-adapter-modal-list-more {
+  color: #22c55e !important;
+}
+.wallet-adapter-modal-list-more svg {
+  fill: #22c55e !important;
+}
