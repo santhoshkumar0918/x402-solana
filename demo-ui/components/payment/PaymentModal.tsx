@@ -48,17 +48,9 @@ export default function PaymentModal({
       setStep('quote');
       setProgress(20);
       
-      const encoder = new TextEncoder();
-      const contentIdHash = await crypto.subtle.digest(
-        'SHA-256', 
-        encoder.encode(contentId)
-      );
-      const contentIdHashHex = Array.from(new Uint8Array(contentIdHash))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      
+      // Send the contentId directly (UUID) - backend will look it up
       const hasCredential = credentialType !== 'none';
-      const quote = await paymentApi.getQuote(contentIdHashHex, hasCredential);
+      const quote = await paymentApi.getQuote(contentId, hasCredential);
       setSessionUuid(quote.sessionUuid);
       
       // Step 2: ZK Proof
