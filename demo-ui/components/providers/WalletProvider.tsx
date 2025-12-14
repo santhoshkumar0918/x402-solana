@@ -7,20 +7,22 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 
-// Import wallet adapter CSS
+// We import the default styles here, but we will override them in globals.css
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  // Use devnet for testing, mainnet-beta for production
+  // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
   const network = WalletAdapterNetwork.Devnet;
+
+  // You can also provide a custom RPC endpoint here
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
+      new SolflareWalletAdapter(),
     ],
-    [network]
+    []
   );
 
   return (
