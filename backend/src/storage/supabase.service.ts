@@ -41,11 +41,36 @@ export class SupabaseService {
     }
   }
 
+  private async ensureBucketExists(): Promise<void> {
+    try {
+      const { data: buckets } = await this.supabase.storage.listBuckets();
+      const bucketExists = buckets?.some(b => b.name === this.bucketName);
+
+      if (!bucketExists) {
+        this.logger.log(`Creating bucket: ${this.bucketName}`);
+        const { error } = await this.supabase.storage.createBucket(this.bucketName, {
+          public: false,
+        });
+        if (error) {
+          this.logger.error(`Failed to create bucket: ${error.message}`);
+          throw new Error(`Failed to create storage bucket: ${error.message}`);
+        }
+        this.logger.log(`✓ Created storage bucket: ${this.bucketName}`);
+      }
+    } catch (err) {
+      this.logger.error(`Bucket check failed: ${err.message}`);
+      throw err;
+    }
+  }
+
   async uploadFile(
     filePath: string,
     fileBuffer: Buffer,
     contentType: string = 'application/octet-stream'
   ): Promise<{ path: string; url: string }> {
+    // Ensure bucket exists before upload
+    await this.ensureBucketExists();
+    
     const { data, error } = await this.supabase.storage
       .from(this.bucketName)
       .upload(filePath, fileBuffer, {
