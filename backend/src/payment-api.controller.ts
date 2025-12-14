@@ -69,7 +69,7 @@ export class PaymentApiController {
     this.logger.log(`Quote requested for content: ${request.contentIdHash}`);
 
     // Try to find by UUID first (if it looks like a UUID), then by contentIdHash
-    let content = null;
+    let content: ContentListing | null = null;
     
     // Check if it's a UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
