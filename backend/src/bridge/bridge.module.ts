@@ -5,6 +5,7 @@ import { BridgeController } from './bridge.controller';
 import { CrossChainPayment } from '../database/entities/CrossChainPayment';
 import { PaymentSession, ContentListing } from '../database/entities';
 import { RedisModule } from '../redis/redis.module';
+import { SolanaModule } from '../solana/solana.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RedisModule } from '../redis/redis.module';
       ContentListing,
     ]),
     RedisModule,
+    SolanaModule,
   ],
   controllers: [BridgeController],
   providers: [BridgeService],

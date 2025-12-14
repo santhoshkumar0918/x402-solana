@@ -9,6 +9,7 @@ import { CrossChainPayment } from '../database/entities/CrossChainPayment';
 import { PaymentSession, PaymentStatus } from '../database/entities';
 import { RedisService } from '../redis/redis.service';
 import { ContentListing } from '../database/entities';
+import { SolanaService } from '../solana/solana.service';
 
 /**
  * BridgeService
@@ -27,10 +28,10 @@ export class BridgeService {
   private wh: Wormhole<any>;
   
   // Allowed emitter contracts (Base Sepolia + Ethereum Sepolia)
-  // Update these after deploying X402PaymentEmitter
+  // DEPLOYED: X402PaymentEmitter on Base Sepolia
   private readonly ALLOWED_EMITTERS = new Map<number, string[]>([
-    [30, []], // Base chain ID (add deployed contract address)
-    [2, []],  // Ethereum chain ID (add deployed contract address)
+    [30, ['0x909a47A46429e23d53608e278C5562fE4945652f']], // Base Sepolia - X402PaymentEmitter
+    [2, []],  // Ethereum Sepolia (not deployed yet)
   ]);
   
   // Rate limiting: 10 requests per minute per IP
@@ -51,6 +52,7 @@ export class BridgeService {
     private readonly contentListingRepository: Repository<ContentListing>,
     
     private readonly redisService: RedisService,
+    private readonly solanaService: SolanaService,
   ) {
     // Initialize Wormhole SDK asynchronously
     this.initializeWormhole();
@@ -272,6 +274,24 @@ export class BridgeService {
         payload.sessionId,
         24 * 60 * 60 // 24 hours
       );
+
+      // 6. Settle payment on Solana (optional - for on-chain record)
+      try {
+        const solanaResult = await this.solanaService.purchaseContentOnChain({
+          contentId: payload.contentId,
+          sessionId: payload.sessionId,
+          amount: parseInt(payload.amount.toString()),
+        });
+        
+        if (solanaResult.success) {
+          this.logger.log(`Solana settlement: ${solanaResult.signature}`);
+        } else {
+          this.logger.warn(`Solana settlement failed: ${solanaResult.error}`);
+          // Don't fail the whole process - Redis access is already granted
+        }
+      } catch (error) {
+        this.logger.warn('Solana settlement error (non-critical):', error.message);
+      }
 
       this.logger.log(
         `Cross-chain payment processed: session=${payload.sessionId}, content=${payload.contentId}`
