@@ -66,7 +66,7 @@ import { CrossChainPayment } from './database/entities/CrossChainPayment';
   controllers: [
     AppController, 
     ApiController, 
-    ContentController,
+    // ContentController, // Disabled - Using ContentManagementController instead
     ContentManagementController,
   ],
   providers: [AppService, SupabaseService],

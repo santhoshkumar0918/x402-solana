@@ -68,9 +68,27 @@ export class PaymentApiController {
   async getQuote(@Body() request: QuoteRequest): Promise<QuoteResponse> {
     this.logger.log(`Quote requested for content: ${request.contentIdHash}`);
 
-    const content = await this.contentRepository.findOne({
-      where: { contentIdHash: Buffer.from(request.contentIdHash, 'hex') },
-    });
+    // Try to find by UUID first (if it looks like a UUID), then by contentIdHash
+    let content = null;
+    
+    // Check if it's a UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (uuidRegex.test(request.contentIdHash)) {
+      content = await this.contentRepository.findOne({
+        where: { id: request.contentIdHash },
+      });
+    }
+    
+    // If not found by UUID, try by contentIdHash (hex buffer)
+    if (!content) {
+      try {
+        content = await this.contentRepository.findOne({
+          where: { contentIdHash: Buffer.from(request.contentIdHash, 'hex') },
+        });
+      } catch (e) {
+        // Invalid hex, ignore
+      }
+    }
 
     if (!content) {
       throw new HttpException('Content not found', HttpStatus.NOT_FOUND);
