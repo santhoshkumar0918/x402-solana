@@ -14,7 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, ILike } from 'typeorm';
-import { ContentListing } from './database/entities';
+import { ContentListing, PaymentSession } from './database/entities';
 import { SupabaseService } from './storage/supabase.service';
 import * as crypto from 'crypto';
 
@@ -41,6 +41,8 @@ export class ContentManagementController {
   constructor(
     @InjectRepository(ContentListing)
     private readonly contentRepository: Repository<ContentListing>,
+    @InjectRepository(PaymentSession)
+    private readonly paymentRepository: Repository<PaymentSession>,
     private readonly supabaseService: SupabaseService,
   ) {}
 
@@ -236,7 +238,7 @@ export class ContentManagementController {
 
   /**
    * GET /api/content/creator/:address
-   * Get all content by creator
+   * Get all content by creator with real analytics
    */
   @Get('creator/:address')
   async getCreatorContent(@Param('address') address: string) {
@@ -248,18 +250,45 @@ export class ContentManagementController {
         order: { createdAt: 'DESC' },
       });
 
-      // TODO: Get actual view and purchase stats from analytics
-      return contents.map(content => ({
-        id: content.id,
-        title: content.metadata?.title || 'Untitled',
-        category: content.metadata?.category || 'Uncategorized',
-        price: parseFloat(content.priceDefault) / 1_000_000,
-        views: 0, // TODO: Implement analytics
-        purchases: 0, // TODO: Count from PaymentSession
-        earnings: 0, // TODO: Calculate from confirmed payments
-        createdAt: content.createdAt.toISOString(),
-        status: 'active',
-      }));
+      // Get payment stats for each content
+      const contentWithStats = await Promise.all(
+        contents.map(async (content) => {
+          // Count total payment sessions (views/quote requests)
+          const totalSessions = await this.paymentRepository.count({
+            where: { contentId: content.id },
+          });
+
+          // Count confirmed purchases
+          const confirmedPayments = await this.paymentRepository.find({
+            where: { 
+              contentId: content.id,
+              status: 'CONFIRMED' as any,
+            },
+          });
+
+          const purchases = confirmedPayments.length;
+          
+          // Calculate total earnings from confirmed payments
+          const earnings = confirmedPayments.reduce((sum, payment) => {
+            const amount = payment.amount ? parseFloat(payment.amount) : 0;
+            return sum + amount;
+          }, 0) / 1_000_000; // Convert from lamports to USDC
+
+          return {
+            id: content.id,
+            title: content.metadata?.title || 'Untitled',
+            category: content.metadata?.category || 'Uncategorized',
+            price: parseFloat(content.priceDefault) / 1_000_000,
+            views: totalSessions, // Total quote requests = views
+            purchases: purchases,
+            earnings: earnings,
+            createdAt: content.createdAt.toISOString(),
+            status: 'active',
+          };
+        })
+      );
+
+      return contentWithStats;
     } catch (error) {
       this.logger.error('Failed to get creator content:', error);
       throw new HttpException(

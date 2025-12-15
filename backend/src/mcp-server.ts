@@ -2,6 +2,7 @@
 /**
  * x402 MCP Server
  * Exposes privacy-preserving payment APIs to AI agents via Model Context Protocol
+ * Now with local Ollama LLM support (100% FREE - no API costs!)
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -9,10 +10,14 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  CreateMessageRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import axios from 'axios';
+import OpenAI from 'openai';
 
 const API_BASE = process.env.API_BASE_URL || 'http://localhost:3000/api';
+const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';
 
 interface PaymentQuote {
   contentId: string;
@@ -42,8 +47,15 @@ interface PaymentStatus {
 
 class X402MCPServer {
   private server: Server;
+  private ollama: OpenAI;
 
   constructor() {
+    // Initialize Ollama client using OpenAI SDK (100% FREE - local LLM!)
+    this.ollama = new OpenAI({
+      apiKey: 'ollama', // dummy key (not used by Ollama)
+      baseURL: `${OLLAMA_HOST}/v1`, // Point to local Ollama OpenAI-compatible API
+    });
+
     this.server = new Server(
       {
         name: 'x402-payment-server',
@@ -52,6 +64,7 @@ class X402MCPServer {
       {
         capabilities: {
           tools: {},
+          sampling: {}, // Enable LLM sampling via Ollama
         },
       }
     );
@@ -72,6 +85,11 @@ class X402MCPServer {
   }
 
   private setupToolHandlers(): void {
+    // Handle LLM sampling requests (Ollama)
+    this.server.setRequestHandler(CreateMessageRequestSchema, async (request) => {
+      return await this.handleSampling(request.params);
+    });
+
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
@@ -422,6 +440,50 @@ class X402MCPServer {
         },
       ],
     };
+  }
+
+  /**
+   * LLM Sampling Handler - Enables AI agents to use local Ollama model
+   * This is 100% FREE - no API costs, runs on localhost!
+   */
+  private async handleSampling(args: any) {
+    try {
+      const messages = args.messages || [];
+      const maxTokens = args.maxTokens || 4096;
+      const temperature = args.temperature ?? 0.7;
+
+      console.error(`[Ollama] Using model: ${OLLAMA_MODEL} at ${OLLAMA_HOST}`);
+
+      // Convert MCP messages to OpenAI format
+      const formattedMessages = messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content.text || msg.content,
+      }));
+
+      // Call local Ollama using OpenAI SDK syntax
+      const completion = await this.ollama.chat.completions.create({
+        model: OLLAMA_MODEL,
+        messages: formattedMessages,
+        max_tokens: maxTokens,
+        temperature: temperature,
+        stream: false,
+      });
+
+      const responseText = completion.choices[0]?.message?.content || '';
+
+      return {
+        role: 'assistant',
+        content: {
+          type: 'text',
+          text: responseText,
+        },
+        model: OLLAMA_MODEL,
+        stopReason: completion.choices[0]?.finish_reason || 'end_turn',
+      };
+    } catch (error: any) {
+      console.error('[Ollama Error]', error.message);
+      throw new Error(`Ollama sampling failed: ${error.message}. Is Ollama running at ${OLLAMA_HOST}?`);
+    }
   }
 
   async run(): Promise<void> {
