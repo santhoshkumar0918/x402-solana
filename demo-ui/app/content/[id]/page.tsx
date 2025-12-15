@@ -73,6 +73,8 @@ export default function ContentDetailPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [decryptedContent, setDecryptedContent] = useState<string>('');
+  const [decryptedFileUrl, setDecryptedFileUrl] = useState<string>('');
+  const [fileName, setFileName] = useState<string>('');
 
   useEffect(() => {
     const loadContent = async () => {
@@ -82,10 +84,52 @@ export default function ContentDetailPage() {
         const data = await contentApi.getById(contentId); 
         setContent(data);
         
-        // If user has decryption key, unlock content
+        // If user has decryption key, unlock and decrypt content
         if (decryptionKey && decryptionKey.length > 0) {
           setIsUnlocked(true);
-          setDecryptedContent(data.fullDescription || data.description);
+          
+          try {
+            console.log('Decrypting content with key:', decryptionKey);
+            
+            // Call backend to decrypt and get the file
+            const decryptedData = await contentApi.decrypt(contentId, decryptionKey);
+            
+            // decryptedData.content is base64 encoded encrypted data
+            // decryptedData.iv is the initialization vector
+            const encryptedBytes = Uint8Array.from(atob(decryptedData.content), c => c.charCodeAt(0));
+            const iv = Uint8Array.from(atob(decryptedData.iv || ''), c => c.charCodeAt(0));
+            
+            // Decrypt client-side
+            const keyBytes = Uint8Array.from(atob(decryptionKey), c => c.charCodeAt(0));
+            const cryptoKey = await crypto.subtle.importKey(
+              'raw',
+              keyBytes,
+              { name: 'AES-GCM' },
+              false,
+              ['decrypt']
+            );
+            
+            const decryptedBytes = await crypto.subtle.decrypt(
+              { name: 'AES-GCM', iv },
+              cryptoKey,
+              encryptedBytes
+            );
+            
+            // Convert to text or blob
+            const decryptedText = new TextDecoder().decode(decryptedBytes);
+            setDecryptedContent(decryptedText);
+            
+            // Create downloadable blob URL
+            const blob = new Blob([decryptedBytes], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            setDecryptedFileUrl(url);
+            setFileName(data.metadata?.fileName || 'decrypted-content.txt');
+            
+            console.log('Content decrypted successfully');
+          } catch (decryptError) {
+            console.error('Failed to decrypt content:', decryptError);
+            setDecryptedContent('Failed to decrypt content. Invalid key or corrupted data.');
+          }
         }
 
       } catch (err) {
@@ -252,9 +296,21 @@ export default function ContentDetailPage() {
                           <p className="text-xs text-gray-500 font-mono">HASH: {(content.contentHash || 'unknown').substring(0, 12)}...</p>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-medium text-white rounded-lg transition-colors flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          if (decryptedFileUrl) {
+                            const a = document.createElement('a');
+                            a.href = decryptedFileUrl;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          }
+                        }}
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 text-xs font-medium text-white rounded-lg transition-colors flex items-center gap-2"
+                      >
                         <Download className="w-3 h-3" />
-                        Save
+                        Download File
                       </button>
                     </div>
 

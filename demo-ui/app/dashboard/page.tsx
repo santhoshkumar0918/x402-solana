@@ -36,44 +36,35 @@ export default function DashboardPage() {
       
       try {
         setLoading(true);
-        // const data = await contentApi.getByCreator(publicKey.toString());
-        // Mock data for UI demo
-        const mockContents: ContentItem[] = [
-          {
-            id: '1',
-            title: 'Investigative Report: Corporate Fraud in Tech Giants',
-            category: 'Investigative Journalism',
-            price: 5.00,
-            views: 1250,
-            purchases: 42,
-            earnings: 210.00,
-            createdAt: '2024-01-15',
-            status: 'active'
-          },
-           {
-            id: '2',
-            title: 'Quantum Entanglement Data Set',
-            category: 'Academic Research',
-            price: 15.00,
-            views: 400,
-            purchases: 12,
-            earnings: 180.00,
-            createdAt: '2024-01-20',
-            status: 'active'
-          }
-        ];
         
-        const data = mockContents;
-        setContents(data);
+        // Fetch real data from backend API
+        const data = await contentApi.getByCreator(publicKey.toString());
         
-        const totalEarnings = data.reduce((sum, c) => sum + c.earnings, 0);
-        const totalViews = data.reduce((sum, c) => sum + c.views, 0);
-        const totalPurchases = data.reduce((sum, c) => sum + c.purchases, 0);
-        const activeContent = data.filter(c => c.status === 'active').length;
+        // Map backend data to ContentItem type
+        const mappedData: ContentItem[] = data.map(item => ({
+          ...item,
+          status: (item.status || 'active') as 'active' | 'pending' | 'removed'
+        }));
+        
+        setContents(mappedData);
+        
+        // Calculate statistics from real data
+        const totalEarnings = mappedData.reduce((sum, c) => sum + c.earnings, 0);
+        const totalViews = mappedData.reduce((sum, c) => sum + c.views, 0);
+        const totalPurchases = mappedData.reduce((sum, c) => sum + c.purchases, 0);
+        const activeContent = mappedData.filter(c => c.status === 'active').length;
         
         setStats({ totalEarnings, totalViews, totalPurchases, activeContent });
       } catch (err) {
-        console.error('Failed to load content:', err);
+        console.error('Failed to load creator content:', err);
+        // Set empty state on error
+        setContents([]);
+        setStats({
+          totalEarnings: 0,
+          totalViews: 0,
+          totalPurchases: 0,
+          activeContent: 0
+        });
       } finally {
         setLoading(false);
       }
